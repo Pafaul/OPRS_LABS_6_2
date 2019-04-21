@@ -2,8 +2,11 @@
 #define CUSTOM_H
 #include "math.h"
 #include <fstream>
+#include <sstream>
 #include "model.h"
 #include "aes_param.h"
+
+long double string_to_double(std::string s);
 
 struct grav_point
 {

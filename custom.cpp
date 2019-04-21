@@ -1,4 +1,70 @@
 #include "custom.h"
+#include <iostream>
+long double string_to_double(std::string s)
+{
+    long double result = 0.0L, base = 10L, p = 1;
+    int dot = -1, sign = 1;
+    for (int i = 0 ; i < s.size(); i++) if (s[i] == '.') dot = i;
+    if (s[0] == '-') sign = -1;
+    if (s[0] == '+') sign = 1;
+    if (dot != -1)
+    {
+        for (int i = dot-1; i > -1; i--)
+        {
+            switch (s[i])
+            {
+            case '0': p *= base; break;
+            case '1': result += 1*p; p *= base; break;
+            case '2': result += 2*p; p *= base; break;
+            case '3': result += 3*p; p *= base; break;
+            case '4': result += 4*p; p *= base; break;
+            case '5': result += 5*p; p *= base; break;
+            case '6': result += 6*p; p *= base; break;
+            case '7': result += 7*p; p *= base; break;
+            case '8': result += 8*p; p *= base; break;
+            case '9': result += 9*p; p *= base; break;
+            }
+        }
+        p = 0.1;
+        for (int i = dot; i < s.size(); i++)
+        {
+            switch (s[i])
+            {
+            case '0': p /= base; break;
+            case '1': result += 1*p; p /= base; break;
+            case '2': result += 2*p; p /= base; break;
+            case '3': result += 3*p; p /= base; break;
+            case '4': result += 4*p; p /= base; break;
+            case '5': result += 5*p; p /= base; break;
+            case '6': result += 6*p; p /= base; break;
+            case '7': result += 7*p; p /= base; break;
+            case '8': result += 8*p; p /= base; break;
+            case '9': result += 9*p; p /= base; break;
+            }
+        }
+
+
+    } else {
+        for (int i = s.size()-1; i > -1; i--)
+        {
+            switch (s[i])
+            {
+            case '0': result *= p; p *= base; break;
+            case '1': result += 1*p; p *= base; break;
+            case '2': result += 2*p; p *= base; break;
+            case '3': result += 3*p; p *= base; break;
+            case '4': result += 4*p; p *= base; break;
+            case '5': result += 5*p; p *= base; break;
+            case '6': result += 6*p; p *= base; break;
+            case '7': result += 7*p; p *= base; break;
+            case '8': result += 8*p; p *= base; break;
+            case '9': result += 9*p; p *= base; break;
+            }
+        }
+    }
+    result *= sign;
+    return result ;
+}
 
 GravModel::GravModel()
 {
@@ -7,8 +73,10 @@ GravModel::GravModel()
 
 GravModel::GravModel(long double * init_param)
 {
+    X0.resize(6);
     AES = new AES_Param (init_param);
-    X0=AES->X;
+    for (int i = 0; i < 6; i++)
+        X0[i] = AES->X[i];
 }
 
 Central_Grav_Model::Central_Grav_Model(long double * init_param) : GravModel (init_param)
@@ -112,11 +180,19 @@ Point_Grav_Model::Point_Grav_Model()
 
 Point_Grav_Model::Point_Grav_Model(long double * init_param) : GravModel (init_param)
 {
-    std::ifstream file("grav_points.txt");
     int i = 0;
-    int j = 0;
-    while(file >> j >> grav_points[i*4] >> grav_points[i*4+1] >> grav_points[i*4+2] >> grav_points[i*4+3]) i ++;
-    for (i = 0; i < 60; i++) for ( j = 0; j < 3; j++) grav_points[i*4+j+1] *= 1000;
+    std::string s, sub;
+    std::ifstream file;
+    file.open("/home/nikonikoni/Qtprojects/test/grav_points.txt", std::ios_base::in);
+    std::getline(file, s);
+    std::stringstream iss(s);
+    while(std::getline(iss, sub, ' '))
+    {
+        grav_points[i] = string_to_double(sub);
+        i++;
+    }
+
+    file.close();
 }
 
 void Point_Grav_Model::getRight(const TVector &X, long double t, TVector &Y)
@@ -129,8 +205,9 @@ void Point_Grav_Model::getRight(const TVector &X, long double t, TVector &Y)
         ro = 0;
         for (int j = 0; j < 3; j++) ro += pow(X[j]-grav_points[i*4+j+1], 2);
         ro = sqrt(ro);
-        Y[3] += -mu*(X[0]-grav_points[i*4+1])/pow(ro, 3);
-        Y[4] += -mu*(X[1]-grav_points[i*4+2])/pow(ro, 3);
-        Y[5] += -mu*(X[2]-grav_points[i*4+3])/pow(ro, 3);
+        Y[3] += -mu*grav_points[i*4]*(X[0]-grav_points[i*4+1])/pow(ro, 3);
+        Y[4] += -mu*grav_points[i*4]*(X[1]-grav_points[i*4+2])/pow(ro, 3);
+        Y[5] += -mu*grav_points[i*4]*(X[2]-grav_points[i*4+3])/pow(ro, 3);
     }
+    std::cout << t << std::endl;
 }
