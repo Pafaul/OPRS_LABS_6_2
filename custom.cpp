@@ -180,19 +180,19 @@ Point_Grav_Model::Point_Grav_Model()
 
 Point_Grav_Model::Point_Grav_Model(long double * init_param) : GravModel (init_param)
 {
-    int i = 0;
+    /*int i = 0;
     std::string s, sub;
     std::ifstream file;
     file.open("/home/nikonikoni/Qtprojects/test/grav_points.txt", std::ios_base::in);
     std::getline(file, s);
     std::stringstream iss(s);
-    while(std::getline(iss, sub, ' '))
+    /*while(std::getline(iss, sub, ' '))
     {
         grav_points[i] = string_to_double(sub);
         i++;
     }
 
-    file.close();
+    file.close();*/
 }
 
 void Point_Grav_Model::getRight(const TVector &X, long double t, TVector &Y)
@@ -203,11 +203,11 @@ void Point_Grav_Model::getRight(const TVector &X, long double t, TVector &Y)
     Y[2] = X[5];
     for (int i = 0; i < 60; i++) {
         ro = 0;
-        for (int j = 0; j < 3; j++) ro += pow(X[j]-grav_points[i*4+j+1], 2);
+        for (int j = 0; j < 3; j++) ro += pow(X[j]-grav_points[i*4+j+2], 2);
         ro = sqrt(ro);
-        Y[3] += -mu*grav_points[i*4]*(X[0]-grav_points[i*4+1])/pow(ro, 3);
-        Y[4] += -mu*grav_points[i*4]*(X[1]-grav_points[i*4+2])/pow(ro, 3);
-        Y[5] += -mu*grav_points[i*4]*(X[2]-grav_points[i*4+3])/pow(ro, 3);
+        Y[3] += -mu*grav_points[i*4+1]*(X[0]-grav_points[i*4+2])/pow(ro, 3);
+        Y[4] += -mu*grav_points[i*4+1]*(X[1]-grav_points[i*4+3])/pow(ro, 3);
+        Y[5] += -mu*grav_points[i*4+1]*(X[2]-grav_points[i*4+4])/pow(ro, 3);
     }
-    std::cout << t << std::endl;
+    //std::cout << t << std::endl;
 }
